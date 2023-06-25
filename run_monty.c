@@ -7,7 +7,7 @@ int is_empty_line(char *line, char *delims);
 void (*get_op_func(char *opcode))(stack_t**, unsigned int);
 int run_monty(FILE *script_fd);
 
-/
+/**
  * free_tokens - Frees the global op_toks array of strings.
  */
 void free_tokens(void)
@@ -23,7 +23,7 @@ void free_tokens(void)
 	free(op_toks);
 }
 
-/
+/**
  * token_arr_len - Gets the length of current op_toks.
  *
  * Return: Length of current op_toks (as int).
@@ -37,7 +37,7 @@ unsigned int token_arr_len(void)
 	return (toks_len);
 }
 
-/
+/**
  * is_empty_line - Checks if a line read from getline only contains delimiters.
  * @line: A pointer to the line.
  * @delims: A string of delimiter characters.
@@ -63,7 +63,7 @@ int is_empty_line(char *line, char *delims)
 	return (1);
 }
 
-/
+/**
  * get_op_func - Matches an opcode with its corresponding function.
  * @opcode: The opcode to match.
  *
@@ -102,7 +102,7 @@ void (*get_op_func(char *opcode))(stack_t**, unsigned int)
 	return (NULL);
 }
 
-/
+/**
  * run_monty - Primary function to execute a Monty bytecodes script.
  * @script_fd: File descriptor for an open Monty bytecodes script.
  *
@@ -114,7 +114,7 @@ int run_monty(FILE *script_fd)
 	char *line = NULL;
 	size_t len = 0, exit_status = EXIT_SUCCESS;
 	unsigned int line_number = 0, prev_tok_len = 0;
-	void (*op_func)(stack_t, unsigned int);
+	void (*op_func)(stack_t**, unsigned int);
 
 	if (init_stack(&stack) == EXIT_FAILURE)
 		return (EXIT_FAILURE);
@@ -132,25 +132,25 @@ int run_monty(FILE *script_fd)
 		}
 		else if (op_toks[0][0] == '#') /* comment line */
 		{
-	 		free_tokens();
+			free_tokens();
 			continue;
 		}
-			op_func = get_op_func(op_toks[0]);
-			if (op_func == NULL)
+		op_func = get_op_func(op_toks[0]);
+		if (op_func == NULL)
 		{
 			free_stack(&stack);
 			exit_status = unknown_op_error(op_toks[0], line_number);
 			free_tokens();
 			break;
 		}
-			prev_tok_len = token_arr_len();
-			op_func(&stack, line_number);
-			if (token_arr_len() != prev_tok_len)
+		prev_tok_len = token_arr_len();
+		op_func(&stack, line_number);
+		if (token_arr_len() != prev_tok_len)
 		{
 			if (op_toks && op_toks[prev_tok_len])
-			exit_status = atoi(op_toks[prev_tok_len]);
-				else
-			exit_status = EXIT_FAILURE;
+				exit_status = atoi(op_toks[prev_tok_len]);
+			else
+				exit_status = EXIT_FAILURE;
 			free_tokens();
 			break;
 		}
